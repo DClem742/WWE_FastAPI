@@ -1,6 +1,6 @@
 CREATE TABLE wrestlers (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
+    name TEXT,
     finishing_move TEXT,
     height_feet INTEGER,
     height_inches INTEGER,
@@ -9,7 +9,7 @@ CREATE TABLE wrestlers (
 
 CREATE TABLE championships (
     id SERIAL PRIMARY KEY,
-    title_name TEXT NOT NULL,
+    title_name TEXT,
     current_champion_id1 INTEGER REFERENCES wrestlers(id),
     current_champion_id2 INTEGER REFERENCES wrestlers(id)
 );

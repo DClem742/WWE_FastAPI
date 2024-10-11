@@ -1,85 +1,132 @@
 import uvicorn
-from fastapi import FastAPI, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import Session, select, SQLModel
-from db import get_session
+from fastapi import FastAPI, HTTPException, Depends
+from sqlmodel import Session, SQLModel, select
 from models.wrestlers import Wrestler
 from models.championships import Championship
 from models.merchandise_sales import Merchandise_Sale
+from db import get_session
 
 app = FastAPI()
 
-origins = [
-    "http://localhost",
-    "http://localhost:8000",
-]
+# Dependency
+def get_db():
+    return next(get_session())
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Wrestlers CRUD
+@app.post("/wrestlers/")
+def create_wrestler(wrestler: Wrestler, db: Session = Depends(get_db)):
+    db.add(wrestler)
+    db.commit()
+    db.refresh(wrestler)
+    return wrestler
 
-@app.get("/")
-def root():
-    return {"message": "WWE Wrestlers"}
+@app.get("/wrestlers/{wrestler_id}")
+def read_wrestler(wrestler_id: int, db: Session = Depends(get_db)):
+    statement = select(Wrestler).where(Wrestler.id == wrestler_id)
+    result = db.exec(statement).first()
+    if not result:
+        raise HTTPException(status_code=404, detail="Wrestler not found")
+    return result
+@app.put("/wrestlers/{wrestler_id}")
+def update_wrestler(wrestler_id: int, updated_wrestler: Wrestler, db: Session = Depends(get_db)):
+    statement = select(Wrestler).where(Wrestler.id == wrestler_id)
+    result = db.exec(statement).first()
+    if not result:
+        raise HTTPException(status_code=404, detail="Wrestler not found")
+    return result
+    wrestler_data = updated_wrestler.dict(exclude_unset=True)
+    for key, value in wrestler_data.items():
+        setattr(wrestler, key, value)
+    db.add(wrestler)
+    db.commit()
+    db.refresh(wrestler)
+    return wrestler
 
+@app.delete("/wrestlers/{wrestler_id}")
+def delete_wrestler(wrestler_id: int, db: Session = Depends(get_db)):
+    statement = select(Wrestler).where(Wrestler.id == wrestler_id)
+    wrestler = db.exec(statement).first()
+    if not wrestler:
+        raise HTTPException(status_code=404, detail="Wrestler not found")
+    db.delete(wrestler)
+    db.commit()
+    return {"message": "Wrestler deleted successfully"}
+    db.commit()
+    return {"message": "Wrestler deleted successfully"}
 
-def create_generic(model):
-    def create(item: model, session: Session = Depends(get_session)):
-        session.add(item)
-        session.commit()
-        session.refresh(item)
-        return item
-    return create
+# Championships CRUD
+@app.post("/championships/")
+def create_championship(championship: Championship, db: Session = Depends(get_db)):
+    db.add(championship)
+    db.commit()
+    db.refresh(championship)
+    return championship
 
-def read_generic(model):
-    def read(item_id: int, session: Session = Depends(get_session)):
-        return session.get(model, item_id)
-    return read
+@app.get("/championships/{championship_id}")
+def read_championship(championship_id: int, db: Session = Depends(get_db)):
+    championship = db.get(Championship, championship_id)
+    if not championship:
+        raise HTTPException(status_code=404, detail="Championship not found")
+    return championship
 
-def update_generic(model):
-    def update(item_id: int, item: model, session: Session = Depends(get_session)):
-        db_item = session.get(model, item_id)
-        if db_item:
-            item_data = item.model_dump(exclude_unset=True)
-            for key, value in item_data.items():
-                setattr(db_item, key, value)
-            session.add(db_item)
-            session.commit()
-            session.refresh(db_item)
-            return db_item
-        return {"error": f"{model.__name__} with id {item_id} not found"}
-    return update
+@app.put("/championships/{championship_id}")
+def update_championship(championship_id: int, updated_championship: Championship, db: Session = Depends(get_db)):
+    championship = db.get(Championship, championship_id)
+    if not championship:
+        raise HTTPException(status_code=404, detail="Championship not found")
+    championship_data = updated_championship.dict(exclude_unset=True)
+    for key, value in championship_data.items():
+        setattr(championship, key, value)
+    db.add(championship)
+    db.commit()
+    db.refresh(championship)
+    return championship
 
-def delete_generic(model):
-    def delete(item_id: int, session: Session = Depends(get_session)):
-        item = session.get(model, item_id)
-        if item:
-            session.delete(item)
-            session.commit()
-        return {"ok": True}
-    return delete
+@app.delete("/championships/{championship_id}")
+def delete_championship(championship_id: int, db: Session = Depends(get_db)):
+    championship = db.get(Championship, championship_id)
+    if not championship:
+        raise HTTPException(status_code=404, detail="Championship not found")
+    db.delete(championship)
+    db.commit()
+    return {"message": "Championship deleted successfully"}
 
-# CRUD operations for Wrestler
-app.post("/wrestlers/")(create_generic(Wrestler))
-app.get("/wrestlers/{item_id}")(read_generic(Wrestler))
-app.put("/wrestlers/{item_id}")(update_generic(Wrestler))
-app.delete("/wrestlers/{item_id}")(delete_generic(Wrestler))
+# Merchandise Sales CRUD
+@app.post("/merchandise-sales/")
+def create_merchandise_sale(merchandise_sale: Merchandise_Sale, db: Session = Depends(get_db)):
+    db.add(merchandise_sale)
+    db.commit()
+    db.refresh(merchandise_sale)
+    return merchandise_sale
 
-# CRUD operations for Championship
-app.post("/championships/")(create_generic(Championship))
-app.get("/championships/{item_id}")(read_generic(Championship))
-app.put("/championships/{item_id}")(update_generic(Championship))
-app.delete("/championships/{item_id}")(delete_generic(Championship))
+@app.get("/merchandise-sales/{sale_id}")
+def read_merchandise_sale(sale_id: int, db: Session = Depends(get_db)):
+    merchandise_sale = db.get(Merchandise_Sale, sale_id)
+    if not merchandise_sale:
+        raise HTTPException(status_code=404, detail="Merchandise sale not found")
+    return merchandise_sale
 
-# CRUD operations for Merchandise_Sales
-app.post("/merchandise_sales/")(create_generic(Merchandise_Sale))
-app.get("/merchandise_sales/{item_id}")(read_generic(Merchandise_Sale))
-app.put("/merchandise_sales/{item_id}")(update_generic(Merchandise_Sale))
-app.delete("/merchandise_sales/{item_id}")(delete_generic(Merchandise_Sale))
+@app.put("/merchandise-sales/{sale_id}")
+def update_merchandise_sale(sale_id: int, updated_sale: Merchandise_Sale, db: Session = Depends(get_db)):
+    merchandise_sale = db.get(Merchandise_Sale, sale_id)
+    if not merchandise_sale:
+        raise HTTPException(status_code=404, detail="Merchandise sale not found")
+    sale_data = updated_sale.dict(exclude_unset=True)
+    for key, value in sale_data.items():
+        setattr(merchandise_sale, key, value)
+    db.add(merchandise_sale)
+    db.commit()
+    db.refresh(merchandise_sale)
+    return merchandise_sale
+
+@app.delete("/merchandise-sales/{sale_id}")
+def delete_merchandise_sale(sale_id: int, db: Session = Depends(get_db)):
+    merchandise_sale = db.get(Merchandise_Sale, sale_id)
+    if not merchandise_sale:
+        raise HTTPException(status_code=404, detail="Merchandise sale not found")
+    db.delete(merchandise_sale)
+    db.commit()
+    return {"message": "Merchandise sale deleted successfully"}
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=8000, reload=True)
