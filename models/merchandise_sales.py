@@ -1,6 +1,6 @@
 from .base import Base
 
-class Merchandise_Sales(Base):
+class Merchandise_Sale(Base):
     __tablename__ = 'merchandise_sales'
 
     wrestler_id: int

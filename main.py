@@ -1,15 +1,29 @@
 import uvicorn
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select, SQLModel
 from db import get_session
 from models.wrestlers import Wrestler
 from models.championships import Championship
-from models.merchandise_sales import Merchandise_Sales
+from models.merchandise_sales import Merchandise_Sale
 
 app = FastAPI()
 
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/")
-async def root():
+def root():
     return {"message": "WWE Wrestlers"}
 
 
@@ -50,19 +64,22 @@ def delete_generic(model):
     return delete
 
 # CRUD operations for Wrestler
-create_wrestler = create_generic(Wrestler)
-read_wrestler = read_generic(Wrestler)
-update_wrestler = update_generic(Wrestler)
-delete_wrestler = delete_generic(Wrestler)
+app.post("/wrestlers/")(create_generic(Wrestler))
+app.get("/wrestlers/{item_id}")(read_generic(Wrestler))
+app.put("/wrestlers/{item_id}")(update_generic(Wrestler))
+app.delete("/wrestlers/{item_id}")(delete_generic(Wrestler))
 
 # CRUD operations for Championship
-create_championship = create_generic(Championship)
-read_championship = read_generic(Championship)
-update_championship = update_generic(Championship)
-delete_championship = delete_generic(Championship)
+app.post("/championships/")(create_generic(Championship))
+app.get("/championships/{item_id}")(read_generic(Championship))
+app.put("/championships/{item_id}")(update_generic(Championship))
+app.delete("/championships/{item_id}")(delete_generic(Championship))
 
 # CRUD operations for Merchandise_Sales
-create_merchandise_sale = create_generic(Merchandise_Sales)
-read_merchandise_sale = read_generic(Merchandise_Sales)
-update_merchandise_sale = update_generic(Merchandise_Sales)
-delete_merchandise_sale = delete_generic(Merchandise_Sales)
+app.post("/merchandise_sales/")(create_generic(Merchandise_Sale))
+app.get("/merchandise_sales/{item_id}")(read_generic(Merchandise_Sale))
+app.put("/merchandise_sales/{item_id}")(update_generic(Merchandise_Sale))
+app.delete("/merchandise_sales/{item_id}")(delete_generic(Merchandise_Sale))
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="localhost", port=8000, reload=True)
