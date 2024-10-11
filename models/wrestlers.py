@@ -1,0 +1,11 @@
+from .base import Base
+
+class Wrestler(Base):
+    __tablename__ = 'wrestlers'
+
+    
+    name: str
+    finishing_move: str
+    height_feet : int
+    height_inches : int
+    weight_lbs: int
