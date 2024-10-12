@@ -8,4 +8,5 @@ class Wrestler(Base, table=True):
     finishing_move: str
     height_feet : int
     height_inches : int
+    image_url: str
     weight_lbs: int

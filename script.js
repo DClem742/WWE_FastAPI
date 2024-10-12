@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const wrestler = data.wrestler;
                     const championships = data.championships;
                     wrestlerStats.innerHTML = `
+                        <img src="${wrestler.image_url}" alt="${wrestler.name}" style="width: 200px; height: auto;">
                         <h2>${wrestler.name}</h2>
                         <p>Finishing Move: ${wrestler.finishing_move}</p>
                         <p>Height: ${wrestler.height_feet}'${wrestler.height_inches}"</p>

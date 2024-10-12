@@ -86,6 +86,7 @@ app.delete("/merchandise_sales/{item_id}")(delete_generic(Merchandise_Sale))
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=8000, reload=True)
 
+from collections import Counter
 
 @app.get("/wrestlers/name/{wrestler_name}")
 def get_wrestler_by_name(wrestler_name: str, session: Session = Depends(get_session)):
@@ -96,8 +97,10 @@ def get_wrestler_by_name(wrestler_name: str, session: Session = Depends(get_sess
             (Championship.current_champion_id2 == wrestler.id)
         )).all()
         
+        championship_set = set(champ.title_name for champ in championships)
+        
         return {
             "wrestler": wrestler,
-            "championships": [champ.title_name for champ in championships]
+            "championships": list(championship_set)
         }
     return {"error": f"Wrestler with name {wrestler_name} not found"}

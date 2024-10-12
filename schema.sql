@@ -4,7 +4,8 @@ CREATE TABLE wrestlers (
     finishing_move TEXT,
     height_feet INTEGER,
     height_inches INTEGER,
-    weight_lbs INTEGER
+    weight_lbs INTEGER,
+    image_url TEXT
 );
 
 CREATE TABLE championships (
