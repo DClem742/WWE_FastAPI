@@ -55,8 +55,8 @@ INSERT INTO wrestlers (name, finishing_move, height_feet, height_inches, weight_
 ('Rhea Ripley', 'Riptide', 5, 8, 137, '/images/rhea_ripley.jpg'),
 ('R-Truth', 'Lie Detector', 6, 2, 220, '/images/r_truth.jpg'),
 ('The Miz', 'Skull-Crushing Finale', 6, 2, 221, '/images/the_miz.jpg'),
-('Seth Rollins', 'Curb Stomp', 6, 2, 225, '/images/seth_rollins.jpg');
-
+('Seth Rollins', 'Curb Stomp', 6, 2, 225, '/images/seth_rollins.jpg'),
+('John Cena', 'Attitude Adjustment', 6, 1, 251, '/images/john_cena.jpg');
 
 
 INSERT INTO championships (title_name, current_champion_id1, current_champion_id2) VALUES
