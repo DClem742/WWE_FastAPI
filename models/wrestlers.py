@@ -1,6 +1,6 @@
 from .base import Base
 
-class Wrestler(Base):
+class Wrestler(Base, table=True):
     __tablename__ = 'wrestlers'
 
     

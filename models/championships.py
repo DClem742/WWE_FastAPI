@@ -1,6 +1,6 @@
 from .base import Base
 
-class Championship(Base):
+class Championship(Base, table=True):
     __tablename__ = 'championships'
 
     title_name: str
