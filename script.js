@@ -21,7 +21,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         <p>Height: ${wrestler.height_feet}'${wrestler.height_inches}"</p>
                         <p>Weight: ${wrestler.weight_lbs} lbs</p>
                         <p>Championships: ${championships.length > 0 ? championships.join(', ') : 'None'}</p>
+                        <button id="playTheme">Play Theme Song</button>
+                        <audio id="themeAudio" src="${wrestler.theme_song_url}"></audio>
                     `;
+                    document.getElementById('playTheme').addEventListener('click', () => {
+                        const audio = document.getElementById('themeAudio');
+                        audio.play();
+                    });
                 }
             })
             .catch(error => {

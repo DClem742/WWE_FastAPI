@@ -5,7 +5,8 @@ CREATE TABLE wrestlers (
     height_feet INTEGER,
     height_inches INTEGER,
     weight_lbs INTEGER,
-    image_url TEXT
+    image_url TEXT,
+    theme_song_url TEXT
 );
 
 CREATE TABLE championships (

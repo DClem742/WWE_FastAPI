@@ -10,3 +10,4 @@ class Wrestler(Base, table=True):
     height_inches : int
     image_url: str
     weight_lbs: int
+    theme_song_url: str
