@@ -7,8 +7,10 @@ from models.wrestlers import Wrestler
 from models.championships import Championship
 from models.merchandise_sales import Merchandise_Sale
 
+# Initialize FastAPI app
 app = FastAPI()
 
+# Define allowed origins for CORS
 origins = [
     "http://localhost",
     "http://localhost:8000",
@@ -16,6 +18,7 @@ origins = [
     "http://localhost:3000",
 ]
 
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -24,11 +27,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Root endpoint
 @app.get("/")
 def root():
     return {"message": "WWE Wrestlers"}
 
-
+# Generic CRUD function generators
 def create_generic(model):
     def create(item: model, session: Session = Depends(get_session)):
         session.add(item)
@@ -83,22 +87,28 @@ app.get("/merchandise_sales/{item_id}")(read_generic(Merchandise_Sale))
 app.put("/merchandise_sales/{item_id}")(update_generic(Merchandise_Sale))
 app.delete("/merchandise_sales/{item_id}")(delete_generic(Merchandise_Sale))
 
+# Run the FastAPI app using Uvicorn
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=8000, reload=True)
 
-from collections import Counter
+# from collections import Counter
 
+# Custom endpoint to get wrestler by name
 @app.get("/wrestlers/name/{wrestler_name}")
 def get_wrestler_by_name(wrestler_name: str, session: Session = Depends(get_session)):
+    # Query the database for the wrestler
     wrestler = session.exec(select(Wrestler).where(Wrestler.name == wrestler_name)).first()
     if wrestler:
+        # Query for championships associated with the wrestler
         championships = session.exec(select(Championship).where(
             (Championship.current_champion_id1 == wrestler.id) | 
             (Championship.current_champion_id2 == wrestler.id)
         )).all()
         
+        # Create a set of unique championship names
         championship_set = set(champ.title_name for champ in championships)
         
+        # Return wrestler info and their championships
         return {
             "wrestler": wrestler,
             "championships": list(championship_set)
